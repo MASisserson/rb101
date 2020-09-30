@@ -1,3 +1,3 @@
-# RB101: Programming Foundations
+# rb101
 
-Coursework for RB101 in Launch School.
+Coursework for RB101 Programming Foundations in Launch School.
