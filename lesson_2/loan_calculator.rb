@@ -35,7 +35,7 @@
 #    to know. If yes, repeat. If no, end session.
 
 def valid?(input)
-  /^-?\d+$/.match(input)
+  /\d/.match(input) && /^-?\d*\.?\d*$/.match(input)
 end
 
 def monthly_interest(apr)
@@ -52,6 +52,20 @@ end
 
 def message(string)
   puts "=> " + string
+end
+
+def another_loop?
+  loop do
+    message "Is there anything else you want to know? (y/n)"
+    answer = gets.chomp
+    if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
+      return true
+    elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
+      return false
+    else
+      message "Please enter either \"yes\" or \"no\"."
+    end
+  end
 end
 
 loan_amount = String.new
@@ -125,9 +139,7 @@ loop do # primary loop. information giving loop.
     end
   end
 
-  message "Is there anything else you want to know? (y/n)"
-  input = gets.chomp
-  break unless input.downcase.start_with?('y')
+  break unless another_loop?
 end
 
 message "Thank you for joining us today."

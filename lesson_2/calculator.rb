@@ -6,9 +6,14 @@
 
 require 'yaml'
 MESSAGES = YAML.load_file('calculator_messages.yml')
+LANGUAGE = 'en'
 
 def prompt(message)
   puts "=> #{message}"
+end
+
+def messages(message, lang='en')
+  MESSAGES[lang][message]
 end
 
 def valid_number?(input)
@@ -32,25 +37,25 @@ end
 
 def another_calculation?
   loop do
-    prompt MESSAGES['another']
+    prompt messages('another')
     answer = gets.chomp
     if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
       return true
     elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
       return false
     else
-      prompt MESSAGES['not_valid_answer']
+      prompt messages('not_valid_answer')
     end
   end
 end
 
-prompt MESSAGES['welcome']
+prompt messages('welcome')
 
 name = String.new
 loop do
   name = gets.chomp
   if name.empty?
-    prompt MESSAGES['valid_name']
+    prompt messages('valid_name')
   else
     break
   end
@@ -58,28 +63,28 @@ end
 
 prompt "Hi #{name}!"
 
-loop do # main loop
+loop do
   number1 = String.new
   loop do
-    prompt MESSAGES['first_number']
+    prompt messages('first_number')
     number1 = gets.chomp
 
     if valid_number?(number1)
       break
     else
-      prompt MESSAGES['not_valid_number']
+      prompt messages('not_valid_number')
     end
   end
 
   number2 = String.new
   loop do
-    prompt MESSAGES['second_number']
+    prompt messages('second_number')
     number2 = gets.chomp
 
     if valid_number?(number2)
       break
     else
-      prompt MESSAGES['not_valid_number']
+      prompt messages('not_valid_number')
     end
   end
 
@@ -99,7 +104,7 @@ What operation would you like to perform?
     if %w(1 2 3 4).include?(operator)
       break
     else
-      prompt MESSAGES['not_valid_operation']
+      prompt messages('not_valid_operation')
     end
   end
 
@@ -121,4 +126,4 @@ What operation would you like to perform?
   break unless another_calculation?
 end
 
-prompt MESSAGES['goodbye']
+prompt messages('goodbye')
