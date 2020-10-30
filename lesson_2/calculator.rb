@@ -49,44 +49,52 @@ def another_calculation?
   end
 end
 
+def clear_screen
+  system('clear') || system('cls')
+end
+
+def get_name
+  name = String.new
+  loop do
+    name = gets.chomp
+    if name.strip.empty?
+      prompt messages('valid_name')
+    else
+      break
+    end
+  end
+
+  name
+end
+
+def get_number(position)
+  input = String.new
+  loop do
+    prompt messages('first_number')  if position == 1
+    prompt messages('second_number') if position == 2
+    input = gets.chomp
+
+    if valid_number?(input)
+      break
+    else
+      prompt messages('not_valid_number')
+    end
+  end
+
+  input
+end
+
+clear_screen()
 prompt messages('welcome')
 
-name = String.new
-loop do
-  name = gets.chomp
-  if name.empty?
-    prompt messages('valid_name')
-  else
-    break
-  end
-end
+name = get_name()
 
 prompt "Hi #{name}!"
 
 loop do
-  number1 = String.new
-  loop do
-    prompt messages('first_number')
-    number1 = gets.chomp
+  number1 = get_number(1)
 
-    if valid_number?(number1)
-      break
-    else
-      prompt messages('not_valid_number')
-    end
-  end
-
-  number2 = String.new
-  loop do
-    prompt messages('second_number')
-    number2 = gets.chomp
-
-    if valid_number?(number2)
-      break
-    else
-      prompt messages('not_valid_number')
-    end
-  end
+  number2 = get_number(2)
 
   operator_prompt = <<-MSG
 What operation would you like to perform?
@@ -122,8 +130,11 @@ What operation would you like to perform?
            end
 
   prompt "The result is #{result}"
+  continue = another_calculation?()
 
-  break unless another_calculation?
+  clear_screen()
+
+  break unless continue
 end
 
 prompt messages('goodbye')

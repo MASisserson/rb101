@@ -57,7 +57,7 @@ end
 def another_loop?
   loop do
     message "Is there anything else you want to know? (y/n)"
-    answer = gets.chomp
+    answer = gets.chomp.strip
     if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
       return true
     elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
@@ -68,49 +68,72 @@ def another_loop?
   end
 end
 
-loan_amount = String.new
-message "Howdy! Please tell us some information about your loan to get started."
-loop do # loan_amount request
-  message "What is your total loan amount in U.S. dollars?"
-  loan_amount = gets.chomp
-
-  break if valid?(loan_amount)
-
-  message "I'm sorry. We could not read that response."
-  message "Please input your total loan amount in U.S. dollars. Please do not
-   include additional characters in your input like $ or %. Also please do not
-   include commas or periods."
+def clear_screen
+  system('clear') || system('cls')
 end
 
-apr = String.new
-message "Excellent. Now please input your Annual Percentage Rate (APR)."
-loop do # APR request
-  message "Please input your APR as a percent value, but omit the % sign."
-  apr = gets.chomp
+def get_loan_amount
+  loan_amount = String.new
+  loop do # loan_amount request
+    message "What is your total loan amount in U.S. dollars?"
+    loan_amount = gets.chomp.strip
 
-  break if valid?(apr)
+    break if valid?(loan_amount)
 
-  message "I'm sorry. We could not read that response."
+    message "I'm sorry. We could not read that response."
+    message "Please input your total loan amount in U.S. dollars. Please do not
+     include additional characters in your input like $ or %. Also please do not
+     include commas or periods."
+  end
+
+  loan_amount
 end
 
-years = String.new
-months = String.new
-message "Thank you."
-loop do # loan duration in years request
+def get_apr
+  apr = String.new
+  message "Excellent. Now please input your Annual Percentage Rate (APR)."
+  loop do # APR request
+    message "Please input your APR as a percent value, but omit the % sign."
+    apr = gets.chomp.strip
+
+    break if valid?(apr)
+
+    message "I'm sorry. We could not read that response."
+  end
+
+  apr
+end
+
+def get_years
+  years = String.new
   message "Please input the loan's duration in years."
-  years = gets.chomp
-  months = years.to_i * 12
+  loop do
+    years = gets.chomp.strip
 
-  break if valid?(years)
+    break if valid?(years)
 
-  message "I'm sorry. We could not read that response."
-  message "Please input your Annual Percentage Rate in as a percent. Please
-   do not include additional characters in your input like %."
+    message "I'm sorry. We could not read that response."
+    message "Please input your loan duration in years. Please
+     do not include additional characters in your input like %."
+  end
+
+  years
 end
 
-message "Fantastic. We now have everything we need."
+clear_screen
+message "Howdy! Please tell us some information about your loan to get started."
 
-loop do # primary loop. information giving loop.
+loan_amount = get_loan_amount
+
+apr = get_apr
+
+years = get_years
+months = years.to_i * 12
+
+message "Thank you."
+message "We now have everything we need."
+
+loop do
   loop do
     operator_msg = <<-MSG
     What would you like to know?
@@ -120,27 +143,30 @@ loop do # primary loop. information giving loop.
     MSG
 
     message operator_msg
-    input = gets.chomp
+    input = gets.chomp.strip
 
     case input
     when '1'
       message "Your monthly interest rate is #{monthly_interest(apr)}%."
       break
     when '2'
-      message "Your loan duration in months: #{months} months."
+      message "Your loan duration in months: #{months} months"
       break
     when '3'
       message "Your monthly payment: $#{monthly_payment(loan_amount,
                                                         monthly_interest(apr),
-                                                        months)}."
+                                                        months)}"
       break
     else # Should validate user response.
       message "Please only input 1, 2, or 3."
     end
   end
 
-  break unless another_loop?
+  again = another_loop?
+  clear_screen
+  break unless again
 end
 
+clear_screen
 message "Thank you for joining us today."
 message "If you would like to look at another loan, please reload the web page."
