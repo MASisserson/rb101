@@ -1,0 +1,20 @@
+loop_again?: "Is there anything else you want to know? (y/n)"
+loop_again_validation: "Please enter either \"yes\" or \"no\"."
+loan_amount_request: "What is your total loan amount in U.S. dollars?"
+could_not_read: "I'm sorry. We could not read that response."
+proper_input: "Please input your total loan amount in U.S. dollars. Please do not
+     include additional characters in your input like $ or %. Also please do not
+     include commas or periods."
+apr_request: "Now Please input your Annual Percentage Rate (APR)."
+percent_request: "Please input your APR as a percent value, but omit the % sign."
+loan_duration_request: "Please input the loan's duration in years."
+no_percent_request: "Please do not include additional characters in your input like %."
+welcome: "Howdy! Please tell us some information about your loan to get started."
+thank_you: "Thank you. We now have everything we need."
+123_request: "Please only input 1, 2, or 3."
+operator_message: "What would you like to know?\n
+                  1. Your monthly interest rate\n
+                  2. Your loan duration in months\n
+                  3. Your monthly payment"
+goodbye: "Thank you for joining us today."
+another_loan: "If you would like to look at another loan, please reload the web page."

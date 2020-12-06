@@ -1,12 +1,8 @@
 # rock_paper_scissors.rb
 
-# Keeping Track of wins and losses
-# 2 options when you enter the game:
-# Best of one
-# Best of 9 (5 wins)
-# At end, computer asks if you are done or if you want to play a best of 9.
-# If say yes, you start playing a best of 9.
+require 'yaml'
 
+MESSAGES      = YAML.load_file('rps_messages.yml')
 VALID_CHOICES = %w(rock paper scissors spock lizard)
 ALLOWED_INPUT = %w(r ro roc rock
                    p pa pap pape paper
@@ -14,12 +10,16 @@ ALLOWED_INPUT = %w(r ro roc rock
                    sp spo spoc spock
                    l li liz liza lizar lizard)
 
+def clear_screen
+  system('clear') || system('cls')
+end
+
 def prompt(message)
   puts "=> #{message}"
 end
 
 def true_feelings(message)
-  puts "$$ #{message}"
+  puts "~[>_<]~ #{message}"
 end
 
 def calculate_result(player, computer)
@@ -35,15 +35,15 @@ end
 
 def display_result(score)
   case score
-  when 1  then prompt "You won!"
-  when -1 then prompt "Computer won!"
-  when 0  then prompt "It's a tie!"
+  when 1  then prompt MESSAGES['win']
+  when -1 then prompt MESSAGES['loss']
+  when 0  then prompt MESSAGES['tie']
   end
 end
 
-def display_score(player, computer)
-  prompt "Player: #{player}"
-  prompt "Computer: #{computer}"
+def display_score(player_score, computer_score)
+  prompt "Player: #{player_score}"
+  prompt "Computer: #{computer_score}"
 end
 
 def convert_to_valid_choice!(input)
@@ -58,102 +58,122 @@ def convert_to_valid_choice!(input)
   end
 end
 
-player_score = 0
-computer_score = 0
-best_of_nine = false
-first_round = true
-answer = ''
-loop do
+def parting_message(player_score, computer_score)
+  if player_score >= 5
+    true_feelings MESSAGES['bested']
+    true_feelings MESSAGES['sulk']
+  elsif computer_score >= 5
+    true_feelings MESSAGES['gloat']
+  else
+    true_feelings MESSAGES['good_bye']
+  end
+end
+
+def display_final_score(player_score, computer_score)
+  display = <<~HEREDOC
+              Final Score:
+                Player: #{player_score}
+                Computer: #{computer_score}
+            HEREDOC
+  prompt display
+end
+
+def request_choice
   choice = String.new
   loop do
     prompt "Choose one: #{VALID_CHOICES.join(', ')}"
     choice = gets.chomp.downcase.strip
 
-    if ALLOWED_INPUT.include?(choice)
+    break if ALLOWED_INPUT.include?(choice)
+
+    prompt MESSAGES['invalid']
+  end
+
+  choice
+end
+
+def confirm_choice!(choice)
+  loop do
+    prompt MESSAGES['confirmation_prompt']
+    decision = gets.chomp.downcase.strip
+
+    if %w(scissors 1).include?(decision)
+      choice.clear.concat('scissors')
+      break
+    elsif %w(spock 2).include?(decision)
+      choice.clear.concat('spock')
       break
     else
-      prompt "That's not a valid choice."
+      prompt MESSAGES['cannot_accept']
     end
   end
+end
 
-  if choice == 's'
-    loop do
-      confirmation_prompt = <<-MSG
-What did you mean by 's'?
-    1. scissors
-    2. spock
-  MSG
-      prompt confirmation_prompt
-      decision = gets.chomp.downcase.strip
+def get_player_choice
+  choice = request_choice()
+  confirm_choice!(choice) if choice == 's'
 
-      if %w(scissors 1).include?(decision)
-        input.clear.concat('scissors')
-        break
-      elsif %w(spock 2).include?(decision)
-        input.clear.concat('spock')
-        break
-      else
-        prompt "I'm sorry. I'm not made to accept that answer."
-      end
-    end
+  choice
+end
+
+def offer_challenge
+  true_feelings MESSAGES['best_of_nine']
+  true_feelings MESSAGES['request']
+end
+
+def validate_acceptance(answer)
+  if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
+    return true
+  elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
+    return false
+  else
+    return nil
   end
+end
 
-  convert_to_valid_choice!(choice)
+def challenge_accepted?
+  loop do
+    prompt MESSAGES['play_again?']
+    answer = gets.chomp.downcase.strip
+    unless validate_acceptance(answer) == nil
+      return validate_acceptance(answer)
+    end
+    prompt MESSAGES['cannot_accept']
+    prompt MESSAGES['yes_or_no']
+  end
+end
 
+player_score = 0
+computer_score = 0
+first_round = true
+
+clear_screen()
+
+loop do
+  player_choice = get_player_choice()
+  
   computer_choice = VALID_CHOICES.sample
 
-  prompt "You chose: #{choice}; Computer chose: #{computer_choice}"
+  clear_screen()
 
-  result = calculate_result(choice, computer_choice)
+  prompt "You chose: #{player_choice}; Computer chose: #{computer_choice}"
+  result = calculate_result(player_choice, computer_choice)
   display_result(result)
-
   case result
   when 1  then player_score += 1
   when -1 then computer_score += 1
   end
   display_score(player_score, computer_score)
 
+  best_of_nine = true
   if first_round
     first_round = false
-    true_feelings "Is that all you've got? Let's make this a best of 9."
-    true_feelings "Wad'ya say?"
-    prompt "Type 'yes' if you wish to play again."
-    answer = gets.chomp.downcase.strip
+    offer_challenge()
+    best_of_nine = challenge_accepted?()
   end
-  if answer.start_with?('y')
-    best_of_nine = true
-  end
+
   break unless best_of_nine
   break if player_score > 4 || computer_score > 4
 end
 
-true_feelings "I was just starting ot have fun..." if !best_of_nine
-final_score_message = <<-MSG
-Final Score:
-Player: #{player_score}
-Computer: #{computer_score}
-MSG
-
-if player_score >= 5
-  true_feelings "Well done. You got the best of me."
-  true_feelings "I'm gonna go sulk now."
-  prompt final_score_message
-elsif computer_score >= 5
-  true_feelings "Well would you look at that."
-  prompt final_score_message
-end
-
-# Final Thoughts:
-# Ruby seems to search above a command for the requisite method.
-# You can't call a method before the method is initiated.
-
-# If the display_result method returned a string, you would add a prompt call
-# before calling the display_results method
-
-# I feel like the creation of another method and the use of case statements
-# as above is a bit blunt, as far as answers go, but it does get rid of
-# the rubocop complaint about there being too much complexity to the if
-# statements that existed before. I also don't like that the logic of the
-# rock paper scissors game is not entirely clear from the case statements.
-
-# Keep in mind this trick for later: using CONSTANTS for repeated arrays
+parting_message(player_score, computer_score)

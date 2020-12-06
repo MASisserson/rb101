@@ -1,38 +1,7 @@
 # loan_calculator.rb
 
-# Inputs:
-# 1. Loan amount
-# 2. Annual Percentage Rate (APR)
-# 3. Loan Duration
-
-# Outputs:
-# 1. Monthly interest rate
-# 2. Loan duration in months
-# 3. Monthly payment
-
-# General Formula:
-# m = p * (j / (1 - (1+j)**(-n)))
-# m = monthly payment
-# p = loan amount
-# j = monthly interest rate
-# n = loan duration in months
-
-# MENTAL MODEL
-# The calculator requests user three pieces of user input and then asks what
-# the user wants to know of the outputs. The user then can ask for another
-# output or can ask to end the session. The system runs methods tied to each
-# output in order to provide that output for the user.
-
-# PROCESS (ALGORITHM)
-# 1. Request and validate user Loan Amount (dollars)
-# 2. Request and validate user APR (percentage)
-# 3. Request and validate user loan duration (years)
-# 4. Present options: (validation loop needed here too)
-#     Monthly interest rate
-#     Loan duration in months
-#     Monthly payment
-# 5. Output user request, then ask if there is anything else the user wishes
-#    to know. If yes, repeat. If no, end session.
+require 'yaml'
+MESSAGES = YAML.load_file('loan_calculator_messages.yml')
 
 def valid?(input)
   /\d/.match(input) && /^-?\d*\.?\d*$/.match(input)
@@ -44,27 +13,37 @@ def monthly_interest(apr)
 end
 
 def monthly_payment(loan_amount, monthly_interest, months)
-  payment = loan_amount.to_f * ((monthly_interest.to_f / 100) /
+  return format('%.2f', loan_amount.to_f) if months == 0
+  return format('%.2f',(loan_amount.to_f / months.to_f)) if monthly_interest == 0
+
+  payment = loan_amount.to_f * ((monthly_interest.to_f/100)/
   (1 - (1 + (monthly_interest.to_f / 100))**(-months.to_f)))
 
-  payment.round(2)
+  format('%.2f', payment)
 end
 
 def message(string)
   puts "=> " + string
 end
 
+def validate_another_loop_input(answer)
+  if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
+    return true
+  elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
+    return false
+  else
+    return nil
+  end
+end
+
 def another_loop?
   loop do
-    message "Is there anything else you want to know? (y/n)"
+    message MESSAGES['loop_again?']
     answer = gets.chomp.strip
-    if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
-      return true
-    elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
-      return false
-    else
-      message "Please enter either \"yes\" or \"no\"."
+    unless validate_another_loop_input(answer) == nil
+      return validate_another_loop_input(answer)
     end
+    message MESSAGES['loop_again_validation']
   end
 end
 
@@ -74,16 +53,14 @@ end
 
 def get_loan_amount
   loan_amount = String.new
-  loop do # loan_amount request
-    message "What is your total loan amount in U.S. dollars?"
+  loop do
+    message MESSAGES['loan_amount_request']
     loan_amount = gets.chomp.strip
 
-    break if valid?(loan_amount)
+    break if valid?(loan_amount) && (loan_amount.to_f >= 0)
 
-    message "I'm sorry. We could not read that response."
-    message "Please input your total loan amount in U.S. dollars. Please do not
-     include additional characters in your input like $ or %. Also please do not
-     include commas or periods."
+    message MESSAGES["could_not_read"]
+    message MESSAGES["proper_input"]
   end
 
   loan_amount
@@ -91,14 +68,14 @@ end
 
 def get_apr
   apr = String.new
-  message "Excellent. Now please input your Annual Percentage Rate (APR)."
-  loop do # APR request
-    message "Please input your APR as a percent value, but omit the % sign."
+  message MESSAGES['apr_request']
+  loop do
+    message MESSAGES['percent_request']
     apr = gets.chomp.strip
 
     break if valid?(apr)
 
-    message "I'm sorry. We could not read that response."
+    message MESSAGES['could_not_read']
   end
 
   apr
@@ -106,67 +83,64 @@ end
 
 def get_years
   years = String.new
-  message "Please input the loan's duration in years."
+  message MESSAGES['loan_duration_request']
   loop do
     years = gets.chomp.strip
 
     break if valid?(years)
 
-    message "I'm sorry. We could not read that response."
-    message "Please input your loan duration in years. Please
-     do not include additional characters in your input like %."
+    message MESSAGES['could_not_read']
+    message MESSAGES['loan_duration_request'] + MESSAGES['no_percent_request']
   end
 
   years
 end
 
-clear_screen
-message "Howdy! Please tell us some information about your loan to get started."
-
-loan_amount = get_loan_amount
-
-apr = get_apr
-
-years = get_years
-months = years.to_i * 12
-
-message "Thank you."
-message "We now have everything we need."
-
-loop do
-  loop do
-    operator_msg = <<-MSG
-    What would you like to know?
-        1. Your monthly interest rate
-        2. Your loan duration in months
-        3. Your monthly payment
-    MSG
-
-    message operator_msg
-    input = gets.chomp.strip
-
-    case input
-    when '1'
-      message "Your monthly interest rate is #{monthly_interest(apr)}%."
-      break
-    when '2'
-      message "Your loan duration in months: #{months} months"
-      break
-    when '3'
-      message "Your monthly payment: $#{monthly_payment(loan_amount,
-                                                        monthly_interest(apr),
-                                                        months)}"
-      break
-    else # Should validate user response.
-      message "Please only input 1, 2, or 3."
-    end
+def give_answer(user_input, loan_amount, apr, years, months)
+  case user_input
+  when '1'
+    message "Your monthly interest rate is #{format('%.2f', monthly_interest(apr))}%."
+  when '2'
+    message "Your loan duration in months: #{months} months"
+  when '3'
+    message "Your monthly payment: $#{monthly_payment(loan_amount,
+                                                      monthly_interest(apr),
+                                                      months)}"
+  else
+    message MESSAGES['123_request']
+    return 0
   end
-
-  again = another_loop?
-  clear_screen
-  break unless again
 end
 
-clear_screen
-message "Thank you for joining us today."
-message "If you would like to look at another loan, please reload the web page."
+def give_options(loan_amount, apr, years, months)
+  loop do
+    message MESSAGES['operator_message']
+    input = gets.chomp.strip
+    break if give_answer(input, loan_amount, apr, years, months) != 0
+  end
+end
+
+def offer_information(loan_amount, apr, years, months)
+  loop do
+    give_options(loan_amount, apr, years, months)
+    again = another_loop?()
+    clear_screen()
+    break unless again
+  end
+end
+
+clear_screen()
+message MESSAGES['welcome']
+
+loan_amount = get_loan_amount()
+apr = get_apr()
+years = get_years()
+months = years.to_i * 12
+
+message MESSAGES['thank_you']
+
+offer_information(loan_amount, apr, years, months)
+
+clear_screen()
+message MESSAGES['goodbye']
+message MESSAGES['another_loan']
