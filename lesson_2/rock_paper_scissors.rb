@@ -123,11 +123,9 @@ end
 
 def validate_acceptance(answer)
   if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
-    return true
+    true
   elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
-    return false
-  else
-    return nil
+    false
   end
 end
 
@@ -135,7 +133,7 @@ def challenge_accepted?
   loop do
     prompt MESSAGES['play_again?']
     answer = gets.chomp.downcase.strip
-    unless validate_acceptance(answer) == nil
+    unless validate_acceptance(answer).nil?
       return validate_acceptance(answer)
     end
     prompt MESSAGES['cannot_accept']
@@ -151,7 +149,7 @@ clear_screen()
 
 loop do
   player_choice = get_player_choice()
-  
+
   computer_choice = VALID_CHOICES.sample
 
   clear_screen()
