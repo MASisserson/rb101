@@ -10,7 +10,6 @@ ALLOWED_INPUT = %w(r ro roc rock
                    sp spo spoc spock
                    l li liz liza lizar lizard)
 
-# PERSONALITY
 def clear_screen
   system('clear') || system('cls')
 end
@@ -23,9 +22,40 @@ def true_feelings(message)
   puts "~[>_<]~ #{message}"
 end
 
-def offer_challenge
-  true_feelings MESSAGES['best_of_nine']
-  true_feelings MESSAGES['request']
+def calculate_result(player, computer)
+  score = VALID_CHOICES.index(player) - VALID_CHOICES.index(computer)
+  if [1, 3, -2, -4].include?(score)
+    1
+  elsif [2, 4, -1, -3].include?(score)
+    -1
+  else
+    0
+  end
+end
+
+def display_result(score)
+  case score
+  when 1  then prompt MESSAGES['win']
+  when -1 then prompt MESSAGES['loss']
+  when 0  then prompt MESSAGES['tie']
+  end
+end
+
+def display_score(player_score, computer_score)
+  prompt "Player: #{player_score}"
+  prompt "Computer: #{computer_score}"
+end
+
+def convert_to_valid_choice!(input)
+  allowed_index = ALLOWED_INPUT.index(input)
+
+  case allowed_index
+  when 0..3   then input.clear.concat('rock')
+  when 4..8   then input.clear.concat('paper')
+  when 10..16 then input.clear.concat('scissors')
+  when 17..20 then input.clear.concat('spock')
+  when 21..26 then input.clear.concat('lizard')
+  end
 end
 
 def parting_message(player_score, computer_score)
@@ -39,24 +69,13 @@ def parting_message(player_score, computer_score)
   end
 end
 
-# INPUT VALIDATION
-def validate_acceptance(answer)
-  if %w(y yes).include?(answer)
-    true
-  elsif %w(n no).include?(answer)
-    false
-  end
-end
-
-# PRIMARY FUNCTION METHODS
-def challenge_accepted?
-  loop do
-    prompt MESSAGES['play_again?']
-    answer = gets.chomp.downcase.strip
-    return validate_acceptance(answer) unless validate_acceptance(answer).nil?
-    prompt MESSAGES['cannot_accept']
-    prompt MESSAGES['yes_or_no']
-  end
+def display_final_score(player_score, computer_score)
+  display = <<~HEREDOC
+              Final Score:
+                Player: #{player_score}
+                Computer: #{computer_score}
+            HEREDOC
+  prompt display
 end
 
 def request_choice
@@ -97,52 +116,31 @@ def get_player_choice
   choice
 end
 
-def calculate_result(player, computer)
-  score = VALID_CHOICES.index(player) - VALID_CHOICES.index(computer)
-  if [1, 3, -2, -4].include?(score)
-    1
-  elsif [2, 4, -1, -3].include?(score)
-    -1
-  else
-    0
+def offer_challenge
+  true_feelings MESSAGES['best_of_nine']
+  true_feelings MESSAGES['request']
+end
+
+def validate_acceptance(answer)
+  if /^y$/i.match(answer) || /^[y][e][s]$/i.match(answer)
+    true
+  elsif /^n$/i.match(answer) || /^[n][o]$/i.match(answer)
+    false
   end
 end
 
-def display_result(score)
-  case score
-  when 1  then prompt MESSAGES['win']
-  when -1 then prompt MESSAGES['loss']
-  when 0  then prompt MESSAGES['tie']
+def challenge_accepted?
+  loop do
+    prompt MESSAGES['play_again?']
+    answer = gets.chomp.downcase.strip
+    unless validate_acceptance(answer).nil?
+      return validate_acceptance(answer)
+    end
+    prompt MESSAGES['cannot_accept']
+    prompt MESSAGES['yes_or_no']
   end
 end
 
-def display_score(player_score, computer_score)
-  prompt "Player: #{player_score}"
-  prompt "Computer: #{computer_score}"
-end
-
-def convert_to_valid_choice!(input)
-  allowed_index = ALLOWED_INPUT.index(input)
-
-  case allowed_index
-  when 0..3   then input.clear.concat('rock')
-  when 4..8   then input.clear.concat('paper')
-  when 10..16 then input.clear.concat('scissors')
-  when 17..20 then input.clear.concat('spock')
-  when 21..26 then input.clear.concat('lizard')
-  end
-end
-
-def display_final_score(player_score, computer_score)
-  display = <<~HEREDOC
-              Final Score:
-                Player: #{player_score}
-                Computer: #{computer_score}
-            HEREDOC
-  prompt display
-end
-
-# MAIN
 player_score = 0
 computer_score = 0
 first_round = true
