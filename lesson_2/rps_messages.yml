@@ -1,4 +1,4 @@
-# rock_paper_scissors_messages.yml
+# rps_messages.yml
 
 win: "You won!"
 loss: "Computer won!"
