@@ -1,5 +1,6 @@
 # rock_paper_scissors.rb
 
+require 'pry'
 require 'yaml'
 
 MESSAGES      = YAML.load_file('rps_messages.yml')
@@ -49,16 +50,6 @@ def validate_acceptance(answer)
 end
 
 # PRIMARY FUNCTION METHODS
-def challenge_accepted?
-  loop do
-    prompt MESSAGES['play_again?']
-    answer = gets.chomp.downcase.strip
-    return validate_acceptance(answer) unless validate_acceptance(answer).nil?
-    prompt MESSAGES['cannot_accept']
-    prompt MESSAGES['yes_or_no']
-  end
-end
-
 def request_choice
   choice = String.new
   loop do
@@ -90,9 +81,22 @@ def confirm_choice!(choice)
   end
 end
 
+def convert_to_valid_choice!(input)
+  allowed_index = ALLOWED_INPUT.index(input)
+
+  case allowed_index
+  when 0..3   then input.clear.concat('rock')
+  when 4..8   then input.clear.concat('paper')
+  when 10..16 then input.clear.concat('scissors')
+  when 17..20 then input.clear.concat('spock')
+  when 21..26 then input.clear.concat('lizard')
+  end
+end
+
 def get_player_choice
   choice = request_choice()
   confirm_choice!(choice) if choice == 's'
+  convert_to_valid_choice!(choice)
 
   choice
 end
@@ -121,25 +125,14 @@ def display_score(player_score, computer_score)
   prompt "Computer: #{computer_score}"
 end
 
-def convert_to_valid_choice!(input)
-  allowed_index = ALLOWED_INPUT.index(input)
-
-  case allowed_index
-  when 0..3   then input.clear.concat('rock')
-  when 4..8   then input.clear.concat('paper')
-  when 10..16 then input.clear.concat('scissors')
-  when 17..20 then input.clear.concat('spock')
-  when 21..26 then input.clear.concat('lizard')
+def challenge_accepted?
+  loop do
+    prompt MESSAGES['play_again?']
+    answer = gets.chomp.downcase.strip
+    return validate_acceptance(answer) unless validate_acceptance(answer).nil?
+    prompt MESSAGES['cannot_accept']
+    prompt MESSAGES['yes_or_no']
   end
-end
-
-def display_final_score(player_score, computer_score)
-  display = <<~HEREDOC
-              Final Score:
-                Player: #{player_score}
-                Computer: #{computer_score}
-            HEREDOC
-  prompt display
 end
 
 # MAIN
