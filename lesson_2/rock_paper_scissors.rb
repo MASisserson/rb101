@@ -1,6 +1,5 @@
 # rock_paper_scissors.rb
 
-require 'pry'
 require 'yaml'
 
 MESSAGES      = YAML.load_file('rps_messages.yml')
@@ -10,6 +9,7 @@ ALLOWED_INPUT = %w(r ro roc rock
                    s sc sci scis sciss scisso scissor scissors
                    sp spo spoc spock
                    l li liz liza lizar lizard)
+WINS_NEEDED   = 5
 
 # PERSONALITY
 def clear_screen
@@ -29,24 +29,16 @@ def offer_challenge
   true_feelings MESSAGES['request']
 end
 
-def parting_message(player_score, computer_score)
-  if player_score >= 5
+def parting_message(scores)
+  if scores[:player] >= 5
     true_feelings MESSAGES['bested']
     true_feelings MESSAGES['sulk']
-  elsif computer_score >= 5
+  elsif scores[:computer] >= 5
     true_feelings MESSAGES['gloat']
   else
     true_feelings MESSAGES['good_bye']
   end
-end
-
-# INPUT VALIDATION
-def validate_acceptance(answer)
-  if %w(y yes).include?(answer)
-    true
-  elsif %w(n no).include?(answer)
-    false
-  end
+  prompt MESSAGES['exit']
 end
 
 # PRIMARY FUNCTION METHODS
@@ -101,6 +93,10 @@ def get_player_choice
   choice
 end
 
+def display_choices(player_choice, computer_choice)
+  prompt "You chose: #{player_choice}; Computer chose: #{computer_choice}"
+end
+
 def calculate_result(player, computer)
   score = VALID_CHOICES.index(player) - VALID_CHOICES.index(computer)
   if [1, 3, -2, -4].include?(score)
@@ -120,27 +116,40 @@ def display_result(score)
   end
 end
 
-def display_score(player_score, computer_score)
-  prompt "Player: #{player_score}"
-  prompt "Computer: #{computer_score}"
-end
-
-def challenge_accepted?
-  loop do
-    prompt MESSAGES['play_again?']
-    answer = gets.chomp.downcase.strip
-    return validate_acceptance(answer) unless validate_acceptance(answer).nil?
-    prompt MESSAGES['cannot_accept']
-    prompt MESSAGES['yes_or_no']
+def update_scores(scores, result)
+  case result
+  when 1  then scores[:player]   += 1
+  when -1 then scores[:computer] += 1
   end
 end
 
+def display_scores(scores)
+  prompt "Player: #{scores[:player]}"
+  prompt "Computer: #{scores[:computer]}"
+end
+
+def play_again?
+  answer = String.new
+  loop do
+    prompt MESSAGES['play_again?']
+    answer = gets.chomp.downcase.strip
+    break if %w(y yes n no).include?(answer)
+    prompt MESSAGES['cannot_accept']
+    prompt MESSAGES['yes_or_no']
+  end
+  answer.start_with?('y')
+end
+
+def someone_winner?(scores)
+  scores[:player] > 4 || scores[:computer] > 4
+end
+
 # MAIN
-player_score = 0
-computer_score = 0
+scores = { player: 0, computer: 0 }
 first_round = true
 
 clear_screen()
+prompt MESSAGES['welcome']
 
 loop do
   player_choice = get_player_choice()
@@ -148,25 +157,21 @@ loop do
   computer_choice = VALID_CHOICES.sample
 
   clear_screen()
-
-  prompt "You chose: #{player_choice}; Computer chose: #{computer_choice}"
+  display_choices(player_choice, computer_choice)
   result = calculate_result(player_choice, computer_choice)
   display_result(result)
-  case result
-  when 1  then player_score += 1
-  when -1 then computer_score += 1
-  end
-  display_score(player_score, computer_score)
+  update_scores(scores, result)
+  display_scores(scores)
 
   best_of_nine = true
   if first_round
     first_round = false
     offer_challenge()
-    best_of_nine = challenge_accepted?()
+    best_of_nine = play_again?()
   end
 
   break unless best_of_nine
-  break if player_score > 4 || computer_score > 4
+  break if someone_winner?(scores)
 end
 
-parting_message(player_score, computer_score)
+parting_message(scores)

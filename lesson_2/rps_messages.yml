@@ -1,5 +1,6 @@
 # rps_messages.yml
 
+welcome: "Welcome to rock, paper, scissors, lizard, spock!"
 win: "You won!"
 loss: "Computer won!"
 tie: "It is a tie!"
@@ -16,3 +17,4 @@ bested: "Well... darn. You got the best of me."
 sulk: "I'ma go sulk now."
 gloat: "Well would you look at that."
 yes_or_no: "Please answer either 'yes' or 'no'."
+exit: "The game will close now."
