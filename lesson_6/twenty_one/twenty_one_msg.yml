@@ -1,0 +1,19 @@
+welcome: 'Welcome to Twenty One!'
+name: "How shall I address you?"
+player_name: "Your name: "
+invalid_name: "Please give me anything other than a blank space.\n
+=> If you have no preferences what I call you, I like saying the name Karen."
+dealer_hand: 'Dealer Hand'
+player_hand: 'Your Hand'
+hit_or_stay: "Hit or Stay?\n
+  1. Hit\n
+  2. Stay"
+unclear_response: "I'm sorry I cannot take that response.\n
+Please input either \"1\", \"2\", \"hit\", or \"stay\"."
+player_won_value: "You won! You have the higher hand value!"
+player_won_bust: "You won! The dealer went bust!"
+dealer_won_value: "You lost. The dealer has the higher hand value."
+dealer_won_bust: "You lost. You went bust."
+play_again: "Would you like to play again?"
+yes_or_no_only: "I'm sorry. I can only accept \"yes\" or \"no\" here."
+tie: "It's a tie!"
