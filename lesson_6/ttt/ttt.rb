@@ -208,7 +208,7 @@ end
 score = { player: 0, computer: 0 }
 first_round = true
 
-prompt 'Welcome to tictactoe!'
+prompt MESSAGES['welcome']
 current_player = choose_who_goes_first
 
 loop do # Main Loop
