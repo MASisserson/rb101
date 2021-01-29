@@ -32,5 +32,3 @@ wins. If all 9 squares are marked and no player has 3 squares in a row, then the
 6. A way to choose to have the loser go first
 
 # Problems discovered after
-1. When choosing the computer to go first, if choose best of 9, you go first instead
-2. Even if computer is set to go first without choice, this happens
