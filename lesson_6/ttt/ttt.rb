@@ -27,10 +27,7 @@ def clear_screen
   system 'clear'
 end
 
-# rubocop:disable Style/For
-def joinor(array, punctuation=', ', conjunction='or')
-  return array.join if array.size <= 1
-  return "#{array[0]} #{conjunction} #{array[1]}" if array.size == 2
+def add_conjunction(array, punctuation, conjunction)
   number_string = String.new
   for i in (0..(array.size - 1)) do
     if i == (array.size - 1)
@@ -40,6 +37,14 @@ def joinor(array, punctuation=', ', conjunction='or')
     number_string << "#{array[i]}#{punctuation}"
   end
   number_string
+end
+
+# rubocop:disable Style/For
+def joinor(array, punctuation=', ', conjunction='or')
+  return array.join if array.size <= 1
+  return "#{array[0]} #{conjunction} #{array[1]}" if array.size == 2
+
+  add_conjunction(array, punctuation, conjunction)
 end
 # rubocop:enable Style/For
 
@@ -75,16 +80,19 @@ def display_score(score)
 end
 
 # Gameplay Methods
+def player_choice
+  loop do
+    prompt MESSAGES['first_move']
+    answer = gets.chomp.downcase.strip
+    return 'player' if %w(1 player).include? answer
+    return 'computer' if %w(2 computer).include? answer
+    prompt MESSAGES['player_or_computer']
+  end
+end
+
 def choose_who_goes_first
   case FIRST_MOVE
-  when 'choose'
-    loop do
-      prompt MESSAGES['first_move']
-      answer = gets.chomp.downcase.strip
-      return answer if %w(player computer).include? answer
-
-      prompt MESSAGES['player_or_computer']
-    end
+  when 'choose'   then player_choice
   when 'player'   then 'player'
   when 'computer' then 'computer'
   end
@@ -111,20 +119,10 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-def computer_offense_condition(brd)
-  WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(COMPUTER_MARKER) == 2
-      square = line.select { |position| brd[position] != COMPUTER_MARKER }.first
-      return square if empty_squares(brd).include? square
-    end
-  end
-  nil
-end
-
-def computer_defense_condition(brd)
+def computer_strategy(brd, marker)
   WINNING_LINES.each do |line| # Add line for computer about to win
-    if brd.values_at(*line).count(PLAYER_MARKER) == 2
-      square = line.select { |position| brd[position] != PLAYER_MARKER }.first
+    if brd.values_at(*line).count(marker) == 2
+      square = line.select { |position| brd[position] != marker }.first
       return square if empty_squares(brd).include? square
     end
   end
@@ -137,10 +135,15 @@ def computer_opening(brd)
 end
 
 def computer_plan(brd)
-  return computer_offense_condition(brd) if !!computer_offense_condition(brd)
-  return computer_defense_condition(brd) if !!computer_defense_condition(brd)
-  return computer_opening(brd) if !!computer_opening(brd)
-  nil
+  if    !!computer_strategy(brd, COMPUTER_MARKER)
+    computer_strategy(brd, COMPUTER_MARKER)
+  elsif !!computer_strategy(brd, PLAYER_MARKER)
+    computer_strategy(brd, PLAYER_MARKER)
+  elsif !!computer_opening(brd)
+    computer_opening(brd)
+  else
+    nil
+  end
 end
 
 def computer_places_piece!(brd)
@@ -208,6 +211,7 @@ end
 score = { player: 0, computer: 0 }
 first_round = true
 
+clear_screen
 prompt MESSAGES['welcome']
 current_player = choose_who_goes_first
 
@@ -215,18 +219,19 @@ loop do # Main Loop
   board = initialize_board
 
   loop do # Gameplay Loop
-    clear_screen if first_round == false
+    clear_screen
     display_board(board)
-    display_score(score) if first_round == false
+    display_score(score) if !first_round
     place_piece!(board, current_player)
     current_player = alternate_player(current_player)
     break if someone_won_round?(board) || board_full?(board)
   end
 
+  clear_screen
   display_board(board)
   display_round_result(board)
   update_score(board, score)
-  sleep(1) if !first_round
+  sleep(2) if !first_round
 
   if first_round
     break unless best_of_nine?

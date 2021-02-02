@@ -1,5 +1,6 @@
 # Twenty One Game
 
+# Requirements
 require 'yaml'
 
 # Constants
@@ -20,12 +21,20 @@ def colorize(text, color_code)
   "\e[#{color_code}m#{text}\e[0m"
 end
 
+def yellow(text)
+  colorize(text, 33)
+end
+
+def green(text)
+  colorize(text, 32)
+end
+
 def red(text)
   colorize(text, 31)
 end
 
 def prompt(msg)
-  puts "=> #{msg}"
+  puts "=> #{green(msg)}"
 end
 
 def display_red_card_value(card)
@@ -71,6 +80,51 @@ def display_face_down_card
   puts "|   |"
   puts "|#{UNKNOWN_CARD}|"
   puts "|___|"
+end
+
+def display_twenty_one
+  puts ' ________                                           ___'
+  puts '|___  ___|_        __ ____  ___ ___  __/\__        / _ \ ___ ___   ____'
+  puts '   |  |  \ \  __  / // __ \|  / _  \|_    _|_   _ | | | |  / _  \ / __ \ '
+  puts '   |  |   \ \/  \/ /|  ____| | | |  | |  |_| \_/ /| |_| | | | |  |  ____|'
+  puts '   |__|    \__/\__/  \____||___| |__|  \___|\   /  \___/|___| |__|\____|'
+  puts '                                            /  / '
+  puts '                                           /__/  '
+end
+
+def display_dealer_hand(dealer_hand, dealer_turn)
+  puts yellow(MESSAGES['dealer_hand'] +
+    ":#{calculate_hand_value('dealer', dealer_hand, dealer_turn)}")
+  if dealer_turn
+    dealer_hand.each { |card| display_card(card) }
+  else
+    display_face_down_card
+    display_card(dealer_hand[1])
+  end
+  puts ""
+  puts ""
+end
+
+def display_player_hand(player_hand)
+  puts yellow(MESSAGES['player_hand'] +
+    ":#{calculate_hand_value('player', player_hand)}")
+  player_hand.each { |card| display_card(card) }
+  puts ""
+end
+
+def display_winner(winner)
+  case winner
+  when :player_value
+    prompt MESSAGES['player_won_value']
+  when :dealer_busted
+    prompt MESSAGES['player_won_bust']
+  when :dealer_value
+    prompt MESSAGES['dealer_won_value']
+  when :player_busted
+    prompt MESSAGES['dealer_won_bust']
+  else
+    prompt MESSAGES['tie']
+  end
 end
 
 # Input Validation Methods
@@ -225,45 +279,11 @@ def play_again?
   yes?
 end
 
-# Other Display Methods
-def display_dealer_hand(dealer_hand, dealer_turn)
-  prompt MESSAGES['dealer_hand']
-  if dealer_turn
-    dealer_hand.each { |card| display_card(card) }
-  else
-    display_face_down_card
-    display_card(dealer_hand[1])
-  end
-  puts ""
-  puts "Dealer: #{calculate_hand_value('dealer', dealer_hand, dealer_turn)}"
-end
-
-def display_player_hand(player_hand)
-  prompt MESSAGES['player_hand']
-  player_hand.each { |card| display_card(card) }
-  puts ""
-  puts "You: #{calculate_hand_value('player', player_hand)}"
-end
-
-def display_winner(winner)
-  case winner
-  when :player_value
-    prompt MESSAGES['player_won_value']
-  when :dealer_busted
-    prompt MESSAGES['player_won_bust']
-  when :dealer_value
-    prompt MESSAGES['dealer_won_value']
-  when :player_busted
-    prompt MESSAGES['dealer_won_bust']
-  else
-    prompt MESSAGES['tie']
-  end
-end
-
 # Primary Code
+clear_screen
 prompt MESSAGES['welcome']
-name = read_name
-prompt "Hello #{name}."
+display_twenty_one
+sleep(3)
 
 loop do
   deck = initialize_deck

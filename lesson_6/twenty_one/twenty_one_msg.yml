@@ -1,8 +1,4 @@
-welcome: 'Welcome to Twenty One!'
-name: "How shall I address you?"
-player_name: "Your name: "
-invalid_name: "Please give me anything other than a blank space.\n
-=> If you have no preferences what I call you, I like saying the name Karen."
+welcome: 'Welcome to'
 dealer_hand: 'Dealer Hand'
 player_hand: 'Your Hand'
 hit_or_stay: "Hit or Stay?\n

@@ -1,11 +1,11 @@
 tie: "It's a tie!"
 first_move: "Please choose who should go first.\n
-  Player\n
-  Computer"
+  1. Player\n
+  2. Computer"
 player_or_computer: "Please choose either 'player' or 'computer'."
 invalid_choice: "Sorry, that isn't a valid choice."
-best_of_9: "Wanna make this a best of 9?"
+best_of_9: "Wanna make this a best of 9? (yes or no)"
 cannot_accept: "I'm sorry. I cannot accept that response."
-yes_or_no: "Please asnwer either \"yes\" or \"no\"."
+yes_or_no: "Please answer either \"yes\" or \"no\"."
 goodbye: "Thanks for playing tictactoe. Goodbye!"
 welcome: "Welcome to tictactoe!"
