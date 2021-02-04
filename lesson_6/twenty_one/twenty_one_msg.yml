@@ -1,15 +1,18 @@
-welcome: 'Welcome to'
+welcome: "Welcome to"
 dealer_hand: 'Dealer Hand'
 player_hand: 'Your Hand'
 hit_or_stay: "Hit or Stay?\n
   1. Hit\n
-  2. Stay"
-unclear_response: "I'm sorry I cannot take that response.\n
+  2. Stay\n
+  (1 for hit or 2 for stay)"
+unclear_response: "I'm sorry. I cannot take that response.\n
 Please input either \"1\", \"2\", \"hit\", or \"stay\"."
 player_won_value: "You won! You have the higher hand value!"
 player_won_bust: "You won! The dealer went bust!"
 dealer_won_value: "You lost. The dealer has the higher hand value."
 dealer_won_bust: "You lost. You went bust."
-play_again: "Would you like to play again?"
-yes_or_no_only: "I'm sorry. I can only accept \"yes\" or \"no\" here."
+yes_or_no_only: "I'm sorry. I can only accept \"y\" or \"n\" here."
 tie: "It's a tie!"
+player_champion: "Congratulations! You brought home the bread!"
+dealer_champion: "Better luck next time champ ;)"
+goodbye: "The table is now closed. Goodbye."

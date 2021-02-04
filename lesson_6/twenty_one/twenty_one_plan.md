@@ -55,3 +55,15 @@ After,display single cards.
 4. Could make player_move return based solely and just return the new hand
   - But then the player_hand variable won't change outside of the loop
 5. Dealer has to hit when merely even with the player
+
+*Small Problems*
+1. Value of A
+
+number_of_aces = find_aces(hand)
+until number_of_aces == 0 
+  if bust?(total)
+    number_of_aces -= 1
+    total -= 10
+end
+
+2. Dealer hand shows full total
