@@ -11,8 +11,8 @@ CARD_VALUES = { 'A' => 11, '1' => 1, '2' => 2, '3' => 3, '4' => 4,
 SUITS = %w(♥ ♦ ♣ ♠)
 RANKS = %w(A 1 2 3 4 5 6 7 8 9 10 J Q K)
 UNKNOWN_CARD = '???'
-MAX_HAND_VALUE = 21 # Bust after a hand value of this number
-WINNING_SCORE = 5 # Sets the number of wins requested
+MAX_HAND_VALUE = 21
+WINNING_SCORE = 5
 
 # Display Methods
 def clear_screen
@@ -210,18 +210,19 @@ def calculate_revealed_card(hand)
   calculate_card_value(hand[1])
 end
 
-def aces(hand)
+def count_aces(hand)
   hand.select { |card| card[1] == 'A' }.size
 end
 
 def calculate_full_hand(hand)
   hand_value = 0
   hand.each { |card| hand_value += calculate_card_value(card) }
-  until aces(hand)
-    if bust?(hand_value)
-      aces -= 1
-      hand_value -= 10
-    end
+  aces = count_aces(hand)
+
+  until (aces == 0)
+    break if !bust?(hand_value)
+    aces -= 1
+    hand_value -= 10
   end
 
   hand_value
